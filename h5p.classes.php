@@ -1858,7 +1858,7 @@ Class H5PExport {
 
     foreach(array('authors', 'source', 'license', 'licenseVersion', 'licenseExtras' ,'yearFrom', 'yearTo', 'changes', 'authorComments', 'defaultLanguage') as $field) {
       if (isset($content['metadata'][$field]) && $content['metadata'][$field] !== '') {
-        if (($field !== 'authors' && $field !== 'changes') || (count($content['metadata'][$field]) > 0)) {
+        if (($field !== 'authors' && $field !== 'changes') || (!empty($content['metadata'][$field]))) {
           $h5pJson[$field] = json_decode(json_encode($content['metadata'][$field], TRUE));
         }
       }
@@ -2104,6 +2104,12 @@ class H5PCore {
   const SECONDS_IN_WEEK = 604800;
 
   private $exportEnabled;
+
+  public $url;
+  public $development_mode;
+  public $aggregateAssets;
+  public $fullPluginPath;
+  public $relativePathRegExp;
 
   // Disable flags
   const DISABLE_NONE = 0;
@@ -2903,8 +2909,10 @@ class H5PCore {
   public function combineArrayValues($inputs) {
     $results = array();
     foreach ($inputs as $index => $values) {
-      foreach ($values as $key => $value) {
-        $results[$key][$index] = $value;
+      if (!empty($value)) {
+        foreach ($values as $key => $value) {
+          $results[$key][$index] = $value;
+        }
       }
     }
     return $results;
@@ -4148,6 +4156,8 @@ class H5PContentValidator {
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
   private static $allowed_styleable_tags = array('span', 'p', 'div','h1','h2','h3', 'td');
+
+  public $allowedStyles;
 
   /**
    * Constructor for the H5PContentValidator
